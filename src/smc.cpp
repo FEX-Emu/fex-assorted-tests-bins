@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <cstdint>
 
+char data_sym[16384];
+char text_sym[16384] __attribute__((section(".text")));
+
 void test(char* code, const char* name) {
 	code[0] = 0xB8;
 	code[1] = 0xAA;
@@ -53,6 +56,18 @@ int main() {
 	mprotect(code, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
 
 	test(code, "stack");
+
+	code = (char*)(((uintptr_t)data_sym+4095) & ~ 4095);
+
+	mprotect(code, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
+
+	test(code, "data_sym");
+
+	code = (char*)(((uintptr_t)text_sym+4095) & ~ 4095);
+
+	mprotect(code, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
+
+	test(code, "text_sym");
 
 	return 0;
 }
