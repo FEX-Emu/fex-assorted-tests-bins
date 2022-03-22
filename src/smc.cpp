@@ -49,23 +49,30 @@ int main() {
 
 	munmap(code, 4096);
 
+	// stack, depends on -z execstack or mprotect
 	char stack[16384];
 
 	code = (char*)(((uintptr_t)stack+4095) & ~ 4095);
 
+#if !defined(EXECSTACK)
 	mprotect(code, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
+#endif
 
 	test(code, "stack");
 
+	// data_sym, must use mprotect
 	code = (char*)(((uintptr_t)data_sym+4095) & ~ 4095);
 
 	mprotect(code, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
 
 	test(code, "data_sym");
 
+	// text_sym, depends on -Wl,omagic or mprotect
 	code = (char*)(((uintptr_t)text_sym+4095) & ~ 4095);
 
+#if !defined(OMAGIC)
 	mprotect(code, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
+#endif
 
 	test(code, "text_sym");
 
