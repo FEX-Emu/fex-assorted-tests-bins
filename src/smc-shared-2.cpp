@@ -59,5 +59,17 @@ int main() {
 	auto code8 = (char*) mmap(0, 4096, PROT_READ | PROT_EXEC, MAP_SHARED, fd, 0);
 	test(code7, code8, "mmap+mmap");
 
+	{
+		auto code = (char*) mmap(0, 4096, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, 0, 0);
+
+		test(code, code, "mmap+fork");
+	}
+
+	{
+		auto shm = shmget(IPC_PRIVATE, 4096, IPC_CREAT | 0777);
+		auto code = (char*)shmat(shm, nullptr, SHM_EXEC);
+		test(code, code, "shmat+fork");
+	}
+
 	return 0;
 }
