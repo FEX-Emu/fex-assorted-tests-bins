@@ -116,16 +116,5 @@ int main() {
 		test(code7, code8, "shm_open+mmap+mmap (fd, fd2)");
 	}
 
-	{
-		auto shm = shmget(IPC_PRIVATE, 4096, IPC_CREAT | 0777);
-		auto code3 = (char*)shmat(shm, nullptr, 0);
-		if (fork() == 0) {
-			auto code4 = (char*)shmat(shm, nullptr, SHM_EXEC);
-			test(code3, code4, "fork+shmat (same shmid)");
-		} else {
-			wait(NULL);
-		}
-	}
-
 	return 0;
 }
