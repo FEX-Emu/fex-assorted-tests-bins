@@ -12,3 +12,5 @@ gcc smc-fd.cpp -g -o ../smc-fd
 gcc smc-signals.cpp -g -o ../smc-signals -lpthread
 gcc signals-nested.cpp -g -o ../signals-nested -lrt
 gcc signals-nested-2.cpp -g -o ../signals-nested-2 -lpthread
+gcc smc-shmatdt.cpp -g -o ../smc-shmatdt
+gcc prot-growsdown.cpp -g -o ../prot-growsdown
