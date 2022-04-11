@@ -47,6 +47,7 @@ int main() {
 		auto code2 = (char*) mremap(code, 8192, 8192*2, MREMAP_MAYMOVE);
 		printf("mmap+mprotect + resize: %p, %p, pass: %d\n", code, code2, code != MAP_FAILED && code2 == MAP_FAILED);
 	}
+
 	{
 		// mremap of existing mapping needs continious map
 		auto code = (char*) mmap(0, 8192, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, 0, 0);
@@ -55,6 +56,14 @@ int main() {
 
 		auto code2 = (char*) mremap(code, 8192, 8192*2, MREMAP_MAYMOVE);
 		printf("mmap+mprotect+mprotect + resize: %p, %p, pass: %d\n", code, code2, code != MAP_FAILED && code2 != MAP_FAILED);
+	}
+
+	{
+		// mremap middle part of mapping
+		auto code = (char*) mmap(0, 8192, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, 0, 0);
+
+		auto code2 = (char*) mremap(code+4096, 4096, 8192*2, MREMAP_MAYMOVE);
+		printf("mmap + resize offset 4096: %p, %p, pass: %d\n", code, code2, code != MAP_FAILED && code2 != MAP_FAILED);
 	}
 
 	{
@@ -70,6 +79,5 @@ int main() {
 		printf("mmap+mmap + mirror: %p, %p, pass: %d\n", code, code2, code != MAP_FAILED && code2 != MAP_FAILED && ok);
 	}
 
-	getchar();
 	return 0;
 }
