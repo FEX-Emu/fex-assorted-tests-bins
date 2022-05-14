@@ -15,4 +15,4 @@ gcc signals-nested-2.cpp -g -o ../signals-nested-2 -lpthread
 gcc smc-shmatdt.cpp -g -o ../smc-shmatdt
 gcc prot-growsdown.cpp -g -o ../prot-growsdown
 gcc memfd.cpp -g -o ../memfd
-gcc reserve-address-space.cpp -g -o ../reserve-address-space
+g++ reserve-address-space.cpp -g -o ../reserve-address-space

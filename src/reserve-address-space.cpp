@@ -9,10 +9,13 @@
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 4096
 #endif
+#include <chrono>
+
 
 // Based on discussion in https://github.com/FEX-Emu/FEX/issues/1708
 int main() {
 
+	auto start_time = std::chrono::high_resolution_clock::now();
 	size_t total_len = 0;
 	size_t alloc_len = 1ULL << 51;
 	while (alloc_len >= PAGE_SIZE) {
@@ -23,8 +26,12 @@ int main() {
 
 			// No more free VM gaps of this size.
 			if (result == MAP_FAILED) {
-				assert(errno == ENOMEM);
-				break;
+				if (errno != ENOMEM && errno != EPERM /* when len is too big ?*/) {
+					printf("Error, errno: %d\n", errno);
+					return -1;
+				} else {
+					break;
+				}
 			}
 			total_len += alloc_len;
 		}
@@ -32,6 +39,9 @@ int main() {
 		// Halve the size and continue filling in gaps.
 		alloc_len >>= 1;
 	}
-	printf("done, allocated %ld\n", total_len);
+
+	std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - start_time;
+
+	printf("done, allocated %ld in %.3f ms\n", total_len, duration.count());
 	return 0;
 }
