@@ -26,10 +26,11 @@ void sig_handler(int signum) {
 }
 
 int main() {
-  signal(SIGN, sig_handler);
+  if (signal(SIGN, sig_handler) != 0) {
+    printf("Signal() failed\n");
+    return -2;
+  }
   while (loop) {
-    printf("Inside main loop, raising signal in a bit\n");
-    sleep(1);
     printf("Inside main loop, raising signal\n");
     raise(SIGN);
   }
