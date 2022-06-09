@@ -5,7 +5,7 @@
 char data_sym[16384];
 char text_sym[16384] __attribute__((section(".text")));
 
-void test(char* code, const char* name) {
+int test(char* code, const char* name) {
 	code[0] = 0xB8;
 	code[1] = 0xAA;
 	code[2] = 0xBB;
@@ -35,10 +35,18 @@ void test(char* code, const char* name) {
 
 	auto e4 = fn();
 
+	int failure_set = 0;
+
+	failure_set |= (e1 != 0xDDCCBBAA) << 0;
 	printf("%s-1: %X, %s\n", name, e1, e1 != 0xDDCCBBAA? "FAIL" : "PASS");
+	failure_set |= (e1 != 0xDDFEBBAA) << 1;
 	printf("%s-2: %X, %s\n", name, e2, e2 != 0xDDFEBBAA? "FAIL" : "PASS");
+	failure_set |= (e1 != 0xDDF3BBAA) << 2;
 	printf("%s-3: %X, %s\n", name, e3, e3 != 0xDDF3BBAA? "FAIL" : "PASS");
+	failure_set |= (e1 != 0xDDF1BBAA) << 3;
 	printf("%s-4: %X, %s\n", name, e4, e4 != 0xDDF1BBAA? "FAIL" : "PASS");
+
+	return failure_set;
 }
 
 int main() {

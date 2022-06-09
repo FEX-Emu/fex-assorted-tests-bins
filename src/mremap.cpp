@@ -30,7 +30,7 @@ void test(char* code, char* codeexec, const char* name) {
 int main() {
 
 	{
-		// mremap of existing mapping needs continious map
+		// mremap of existing mapping needs continuous map
 		auto code = (char*) mmap(0, 8192, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, 0, 0);
 		munmap(code+4096, 4096);
 		mmap(code+4096, 4096, PROT_NONE, MAP_PRIVATE | MAP_ANON, 0, 0);
@@ -40,7 +40,7 @@ int main() {
 	}
 
 	{
-		// mremap of existing mapping needs continious map
+		// mremap of existing mapping needs continuous map
 		auto code = (char*) mmap(0, 8192, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, 0, 0);
 		mprotect(code+4096, 4096, PROT_READ);
 
@@ -49,7 +49,7 @@ int main() {
 	}
 
 	{
-		// mremap of existing mapping needs continious map
+		// mremap of existing mapping needs continuous map
 		auto code = (char*) mmap(0, 8192, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, 0, 0);
 		mprotect(code+4096, 4096, PROT_READ);
 		mprotect(code+4096, 4096, PROT_READ | PROT_WRITE | PROT_EXEC);

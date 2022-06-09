@@ -1,64 +1,45 @@
-#include <stdio.h>  /* for puts() */
-#include <string.h> /* for memset() */
-#include <unistd.h> /* for sleep() */
-#include <stdlib.h> /* for EXIT_SUCCESS */
+//cxx: -lrt -O2
 
-#include <signal.h> /* for `struct sigevent` and SIGEV_THREAD */
-#include <time.h>   /* for timer_create(), `struct itimerspec`,
-                     * timer_t and CLOCK_REALTIME 
-                     */
-timer_t timerid;
-struct sigevent sev;
-struct itimerspec trigger;
+#include <stdio.h> 
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-void thread_handler(union sigval sv) {
-	puts("timer event recvd\n");
-        exit(0);
+#include <signal.h>
+#include <time.h>
+
+int test;
+
+void timer_handler(union sigval sv) {
+	auto ok = sv.sival_ptr == &test;
+	printf("timer_handler called, ok = %d\n", ok);
+
+	exit( ok ? 0 : -1);
 }
 
-int main(void) {
-        char info[] = "5 seconds elapsed.";
+int main() {
 
-        /* Set all `sev` and `trigger` memory to 0 */
-        memset(&sev, 0, sizeof(struct sigevent));
-        memset(&trigger, 0, sizeof(struct itimerspec));
+	timer_t timer;
+	sigevent sige;
+	itimerspec timerspec;
 
-        /*
-         * Set the notification method as SIGEV_THREAD:
-         *
-         * Upon timer expiration, `sigev_notify_function` (thread_handler()),
-         * will be invoked as if it were the start function of a new thread.
-         *
-         */
-        sev.sigev_notify = SIGEV_THREAD;
-        sev.sigev_notify_function = &thread_handler;
-        sev.sigev_value.sival_ptr = &info;
+        memset(&sige, 0, sizeof(sige));
 
-        /* Create the timer. In this example, CLOCK_REALTIME is used as the
-         * clock, meaning that we're using a system-wide real-time clock for
-         * this timer.
-         */
-        timer_create(CLOCK_REALTIME, &sev, &timerid);
+        sige.sigev_notify = SIGEV_THREAD;
+        sige.sigev_notify_function = &thread_handler;
+        sige.sigev_value.sival_ptr = &test;
 
-        /* Timer expiration will occur withing 5 seconds after being armed
-         * by timer_settime().
-         */
-        trigger.it_value.tv_sec = 0;
-        trigger.it_value.tv_nsec = 100000000;
+        timer_create(CLOCK_REALTIME, &sige, &timer);
+        
+	memset(&timerspec, 0, sizeof(timerspec));
 
-        /* Arm the timer. No flags are set and no old_value will be retrieved.
-         */
-        timer_settime(timerid, 0, &trigger, NULL);
+        timerspec.it_value.tv_sec = 0;
+        timerspec.it_value.tv_nsec = 1;
 
-        /* Wait 10 seconds under the main thread. In 5 seconds (when the
-         * timer expires), a message will be printed to the standard output
-         * by the newly created notification thread.
-         */
-	for(;;)
-        sleep(10);
+        timer_settime(timer, 0, &timerspec, NULL);
 
-        /* Delete (destroy) the timer */
-        timer_delete(timerid);
-
-        return EXIT_SUCCESS;
+	sleep(1);
+        
+        puts("should never get here\n");
+        return -2;
 }
